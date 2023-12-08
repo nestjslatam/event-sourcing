@@ -1,0 +1,18 @@
+{
+  "name": "@nestjslatam/es-lib",
+  "version": "1.0.0",
+  "description": "NESTJS ES is a LIB designed to complement CQRS and DDD libs with Event Sourcing Support in an easy way",
+  "main": "index.js",
+  "private": false,
+  "keywords": [
+    "nestjs",
+    "eventsourcing",
+    "es"
+  ],
+  "author": {
+    "name": "Alberto Arroyo Raygada",
+    "email": "beyondnet.peru@gmail.com",
+    "url": "http://nestjslatam.org/"
+  },
+  "license": "MIT"
+}
