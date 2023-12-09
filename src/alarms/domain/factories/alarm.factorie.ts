@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { randomUUID } from 'crypto';
-import { Alarm } from '../alarm';
 
-import { AlarmSeverity } from '../value-objects/alarm-severity';
+import { Alarm } from '../alarm';
 import { AlarmItem } from '../alarm-item';
 import { AlarmCreatedEvent } from '../events/alarm-created.event';
+import { Name } from '../value-objects/name';
+import { AlarmSeverity } from '../value-objects/alarm-severity';
+import { Type } from '../value-objects/type';
 
 @Injectable()
 export class AlarmFactory {
@@ -14,15 +15,12 @@ export class AlarmFactory {
     triggeredAt: Date,
     items: Array<{ name: string; type: string }>,
   ): Alarm {
-    const alarmId = randomUUID();
-    const alarmSeverity = new AlarmSeverity(severity as AlarmSeverity['value']);
-    const alarm = new Alarm(alarmId);
-    alarm.name = name;
-    alarm.severity = alarmSeverity;
-    alarm.triggeredAt = triggeredAt;
+    const alarm = Alarm.create(Name.create(name), AlarmSeverity[severity]);
 
     items
-      .map((item) => new AlarmItem(randomUUID(), item.name, item.type))
+      .map((item) =>
+        AlarmItem.create(Name.create(item.name), Type.create(item.type)),
+      )
       .forEach((item) => {
         alarm.addAlarmItem(item);
       });

@@ -8,9 +8,9 @@ import { ChangeStream, ChangeStreamInsertDocument } from 'mongodb';
 import { Model } from 'mongoose';
 import { DomainEvent, DomainEventBus } from '@nestjslatam/ddd-lib';
 
-import { EVENT_STORE_CONNECTION } from '../../../core';
-import { Event, EventDocument } from './schemas';
-import { EventDeserializer } from './deserializers';
+import { EventDeserializer } from '../es-deserializers';
+import { EVENT_STORE_CONNECTION } from './constants';
+import { EventDocument } from './schemas';
 
 @Injectable()
 export class EventsBridge

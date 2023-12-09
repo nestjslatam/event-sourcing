@@ -1,16 +1,17 @@
 import { Injectable, Type } from '@nestjs/common';
-import { EventStore } from './ports/event-store';
-import { EventPublisher } from '@nestjs/cqrs';
-import { VersionedAggregateRoot } from '../../domain';
+import { DomainEventPublisher } from '@nestjslatam/ddd-lib';
+
+import { EsDomainAggregateRoot } from './es-aggregate-root';
+import { AbstractEventStore } from './es-core';
 
 @Injectable()
 export class AggregateRehydrator {
   constructor(
-    private readonly eventStore: EventStore,
-    private readonly eventPublisher: EventPublisher,
+    private readonly eventStore: AbstractEventStore,
+    private readonly eventPublisher: DomainEventPublisher,
   ) {}
 
-  async rehydrate<T extends VersionedAggregateRoot>(
+  async rehydrate<T extends EsDomainAggregateRoot<any>>(
     aggregateId: string,
     AggregateCls: Type<T>,
   ): Promise<T> {
@@ -21,6 +22,7 @@ export class AggregateRehydrator {
     const aggregate = new AggregateClsWithDispatcher(aggregateId);
 
     aggregate.loadFromHistory(events);
+
     return aggregate;
   }
 }

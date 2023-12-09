@@ -2,14 +2,13 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
-import { EVENT_STORE_CONNECTION } from '../../../core';
-import { SerializableEvent } from '../../domain';
-import { Event } from './schemas';
-import { EventDeserializer } from './deserializers';
-import { EventStore } from '../application';
+import { EVENT_STORE_CONNECTION } from './constants';
+import { EventDeserializer } from '../es-deserializers';
+import { ISerializableEvent } from '../es-serializers';
+import { AbstractEventStore } from '../es-core';
 
 @Injectable()
-export class MongoEventStore implements EventStore {
+export class MongoEventStore implements AbstractEventStore {
   private readonly logger = new Logger(MongoEventStore.name);
 
   constructor(
@@ -19,7 +18,7 @@ export class MongoEventStore implements EventStore {
   ) {}
 
   async persist(
-    eventOrEvents: SerializableEvent | SerializableEvent[],
+    eventOrEvents: ISerializableEvent | ISerializableEvent[],
   ): Promise<void> {
     const events = Array.isArray(eventOrEvents)
       ? eventOrEvents
@@ -47,7 +46,7 @@ export class MongoEventStore implements EventStore {
     }
   }
 
-  async getEventsByStreamId(streamId: string): Promise<SerializableEvent[]> {
+  async getEventsByStreamId(streamId: string): Promise<ISerializableEvent[]> {
     const events = await this.eventStore
       .find({ streamId })
       .sort({ position: 1 });

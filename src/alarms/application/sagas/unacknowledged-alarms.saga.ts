@@ -13,6 +13,7 @@ import {
 import { AlarmAcknowledgedEvent } from '../../domain/events/alarm-acknowledged.event';
 import { AlarmCreatedEvent } from '../../domain/events/alarm-created.event';
 import { NotifyFacilitySupervisorCommand } from '../commands/notify-facility-supervisor.command';
+import { Alarm } from '../../../alarms/domain/alarm';
 
 @Injectable()
 export class UnacknowledgedAlarmsSaga {
@@ -33,10 +34,10 @@ export class UnacknowledgedAlarmsSaga {
       mergeMap((alarmCreatedEvent) =>
         race(
           alarmAcknowledgedEvents$.pipe(
-            filter(
-              (alarmAcknowledgedEvent) =>
-                alarmAcknowledgedEvent.alarmId === alarmCreatedEvent.alarm.id,
-            ),
+            filter((alarmAcknowledgedEvent) => {
+              const alarm = alarmCreatedEvent.alarm as Alarm;
+              return alarmAcknowledgedEvent.alarmId === alarm.getId();
+            }),
             first(),
             // If the alarm is acknowledged, we don't need to do anything
             // Just return an empty observable that never emits
@@ -46,14 +47,15 @@ export class UnacknowledgedAlarmsSaga {
         ),
       ),
       map((alarmCreatedEvent) => {
+        const alarm = alarmCreatedEvent.alarm as Alarm;
         this.logger.debug(
-          `⚠️⚠️⚠️ Alarm "${alarmCreatedEvent.alarm.name}" not acknowledged in 15 seconds!`,
+          `⚠️⚠️⚠️ Alarm "${alarm
+            .getPropsCopy()
+            .name.unpack()}" not acknowledged in 15 seconds!`,
         );
 
         const facilityId = '12345';
-        return new NotifyFacilitySupervisorCommand(facilityId, [
-          alarmCreatedEvent.alarm.id,
-        ]);
+        return new NotifyFacilitySupervisorCommand(facilityId, [alarm.getId()]);
       }),
     );
   };

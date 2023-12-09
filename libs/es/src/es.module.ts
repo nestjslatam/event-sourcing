@@ -1,11 +1,44 @@
 import { Module } from '@nestjs/common';
-
-import { CoreModule } from './core/core.module';
 import { ConfigModule } from '@nestjs/config';
-import { SharedModule } from './shared/shared.module';
+import { MongooseModule } from '@nestjs/mongoose';
+
+import {
+  EVENT_STORE_CONNECTION,
+  EventsBridge,
+  MongoEventStore,
+} from './es-store';
+import { AbstractEventStore, EsOptions } from './es-core';
+import { EventSerializer } from './es-serializers';
+import { EventStorePublisher } from './es-eventstore.publisher';
+import { EventDeserializer } from './es-deserializers';
 
 @Module({
-  imports: [ConfigModule.forRoot(), CoreModule, SharedModule],
-  exports: [],
+  imports: [ConfigModule.forRoot()],
+  providers: [
+    EventSerializer,
+    EventStorePublisher,
+    MongoEventStore,
+    EventsBridge,
+    EventDeserializer,
+    {
+      provide: AbstractEventStore,
+      useExisting: MongoEventStore,
+    },
+  ],
+  exports: [AbstractEventStore],
 })
-export class DddModule {}
+export class EsModule {
+  static forRoot(options: EsOptions) {
+    const imports = [
+      MongooseModule.forRoot(options.mongoUrl, {
+        connectionName: EVENT_STORE_CONNECTION,
+        directConnection: true,
+      }),
+    ];
+
+    return {
+      module: EsModule,
+      imports,
+    };
+  }
+}

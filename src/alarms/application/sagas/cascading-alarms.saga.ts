@@ -4,6 +4,7 @@ import { Observable, bufferTime, filter, groupBy, map, mergeMap } from 'rxjs';
 
 import { AlarmCreatedEvent } from '../../domain/events/alarm-created.event';
 import { NotifyFacilitySupervisorCommand } from '../commands/notify-facility-supervisor.command';
+import { Alarm } from '../../../alarms/domain/alarm';
 
 @Injectable()
 export class CascadingAlarmsSaga {
@@ -14,7 +15,10 @@ export class CascadingAlarmsSaga {
     return events$.pipe(
       ofType(AlarmCreatedEvent),
       // Instead of grouping events by alarm name, we could group them by facility ID
-      groupBy((event) => event.alarm.name),
+      groupBy((event) => {
+        const alarm = event.alarm as Alarm;
+        return alarm.getPropsCopy().name.unpack();
+      }),
       mergeMap((groupedEvents$) =>
         // Buffer events for 5 seconds or until 3 events are received
         groupedEvents$.pipe(bufferTime(5000, undefined, 3)),
@@ -26,7 +30,10 @@ export class CascadingAlarmsSaga {
 
         return new NotifyFacilitySupervisorCommand(
           facilityId,
-          events.map((event) => event.alarm.id),
+          events.map((event) => {
+            const alarm = event.alarm as Alarm;
+            return alarm.getId();
+          }),
         );
       }),
     );

@@ -1,5 +1,6 @@
 import { Logger } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+
 import { NotifyFacilitySupervisorCommand } from './notify-facility-supervisor.command';
 
 @CommandHandler(NotifyFacilitySupervisorCommand)

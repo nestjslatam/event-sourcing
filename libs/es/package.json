@@ -1,6 +1,6 @@
 {
   "name": "@nestjslatam/es-lib",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "NESTJS ES is a LIB designed to complement CQRS and DDD libs with Event Sourcing Support in an easy way",
   "main": "index.js",
   "private": false,
@@ -16,6 +16,6 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@nestjslatam/ddd-lib": "^1.0.39"
+    "@nestjslatam/ddd-lib": "^1.0.41"
   }
 }

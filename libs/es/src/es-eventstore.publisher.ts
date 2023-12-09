@@ -1,13 +1,13 @@
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
-
 import {
   DomainEventBus,
   IDomainEvent,
   IDomainEventPublisher,
 } from '@nestjslatam/ddd-lib';
-import { VersionedAggregateRoot } from '../../../domain/aggregate-root';
-import { MongoEventStore } from '../mongo-event-store';
-import { EventSerializer } from '../serializers';
+
+import { MongoEventStore } from './es-store/mongo-event-store';
+import { EventSerializer } from './es-serializers';
+import { EsDomainAggregateRoot } from './es-aggregate-root';
 
 @Injectable()
 export class EventStorePublisher
@@ -25,7 +25,7 @@ export class EventStorePublisher
 
   publish<T extends IDomainEvent = IDomainEvent>(
     event: T,
-    dispatcher: VersionedAggregateRoot,
+    dispatcher: EsDomainAggregateRoot<any>,
   ) {
     const serializableEvent = this.eventSerializer.serialize(event, dispatcher);
     return this.eventStore.persist(serializableEvent);
@@ -33,13 +33,13 @@ export class EventStorePublisher
 
   publishAll<T extends IDomainEvent = IDomainEvent>(
     events: T[],
-    dispatcher: VersionedAggregateRoot,
+    dispatcher: EsDomainAggregateRoot<any>,
   ) {
     const serializableEvents = events
       .map((event) => this.eventSerializer.serialize(event, dispatcher))
       .map((serializableEvent, index) => ({
         ...serializableEvent,
-        position: dispatcher.version.value + index + 1,
+        position: dispatcher.version + index + 1,
       }));
 
     return this.eventStore.persist(serializableEvents);
