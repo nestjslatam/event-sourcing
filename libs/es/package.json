@@ -14,5 +14,8 @@
     "email": "beyondnet.peru@gmail.com",
     "url": "http://nestjslatam.org/"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@nestjslatam/ddd-lib": "^1.0.39"
+  }
 }

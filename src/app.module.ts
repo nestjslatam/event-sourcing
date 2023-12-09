@@ -1,10 +1,22 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { DddModule } from '@nestjslatam/es';
 
 @Module({
-  imports: [],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [CoreModule, DddModule, SharedModule],
+  controllers: [],
+  providers: [],
 })
-export class AppModule {}
+export class AppModule {
+  static register(options: ApplicationBootstrapOptions) {
+    // 👈 new method
+    return {
+      module: AppModule,
+      imports: [
+        CoreModule.forRoot(options),
+        AlarmsModule.withInfrastucture(
+          AlarmsInfrastructureModule.use(options.driver),
+        ),
+      ],
+    };
+  }
+}
