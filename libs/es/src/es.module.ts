@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
+import { DddModule } from '@nestjslatam/ddd-lib';
 
 import {
   EVENT_STORE_CONNECTION,
@@ -13,7 +14,7 @@ import { EventStorePublisher } from './es-eventstore.publisher';
 import { EventDeserializer } from './es-deserializers';
 
 @Module({
-  imports: [ConfigModule.forRoot()],
+  imports: [ConfigModule.forRoot(), DddModule],
   providers: [
     EventSerializer,
     EventStorePublisher,
@@ -30,6 +31,7 @@ import { EventDeserializer } from './es-deserializers';
 export class EsModule {
   static forRoot(options: EsOptions) {
     const imports = [
+      DddModule,
       MongooseModule.forRoot(options.mongoUrl, {
         connectionName: EVENT_STORE_CONNECTION,
         directConnection: true,

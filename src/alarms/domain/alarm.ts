@@ -97,32 +97,32 @@ export class Alarm extends EsDomainAggregateRoot<IAlarmProps> {
     this.props.items.push(item);
   }
 
-  [`on${AlarmCreatedEvent.name}`](
-    event: SerializedEventPayload<AlarmCreatedEvent>,
-  ) {
-    const alarm = event.alarm as Alarm;
-    this.props.name = Name.create(alarm.getPropsCopy().name.unpack());
-    this.props.severity = alarm.getPropsCopy().severity;
-    this.props.triggeredAt = alarm.getPropsCopy().triggeredAt;
-    this.props.isAcknowledged = alarm.getPropsCopy().isAcknowledged;
-    this.props.items = alarm
-      .getPropsCopy()
-      .items.map(
-        (item) =>
-          new AlarmItem(
-            item.getPropsCopy().id,
-            item.getPropsCopy().name,
-            item.getPropsCopy().type,
-          ),
-      );
-  }
+  // [`on${AlarmCreatedEvent.name}`](
+  //   event: SerializedEventPayload<AlarmCreatedEvent>,
+  // ) {
+  //   const alarm = event.alarm as Alarm;
+  //   this.props.name = Name.create(alarm.getPropsCopy().name.unpack());
+  //   this.props.severity = alarm.getPropsCopy().severity;
+  //   this.props.triggeredAt = alarm.getPropsCopy().triggeredAt;
+  //   this.props.isAcknowledged = alarm.getPropsCopy().isAcknowledged;
+  //   this.props.items = alarm
+  //     .getPropsCopy()
+  //     .items.map(
+  //       (item) =>
+  //         new AlarmItem(
+  //           item.getPropsCopy().id,
+  //           item.getPropsCopy().name,
+  //           item.getPropsCopy().type,
+  //         ),
+  //     );
+  // }
 
-  [`on${AlarmAcknowledgedEvent.name}`](
-    event: SerializedEventPayload<AlarmAcknowledgedEvent>,
-  ) {
-    if (this.getPropsCopy().isAcknowledged) {
-      throw new Error('Alarm has already been acknowledged');
-    }
-    this.props.isAcknowledged = true;
-  }
+  // [`on${AlarmAcknowledgedEvent.name}`](
+  //   event: SerializedEventPayload<AlarmAcknowledgedEvent>,
+  // ) {
+  //   if (this.getPropsCopy().isAcknowledged) {
+  //     throw new Error('Alarm has already been acknowledged');
+  //   }
+  //   this.props.isAcknowledged = true;
+  // }
 }
