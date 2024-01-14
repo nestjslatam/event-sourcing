@@ -14,7 +14,7 @@ export class Name extends AbstractDomainString {
   }
 
   toJSON() {
-    return this.props.value;
+    return this._props.value;
   }
 
   protected businessRules(props: IDomainPrimitive<string>): void {

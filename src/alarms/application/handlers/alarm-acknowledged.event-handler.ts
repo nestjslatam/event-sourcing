@@ -1,13 +1,17 @@
 import { Logger } from '@nestjs/common';
-import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
-import { SerializedEventPayload } from '@nestjslatam/es-lib';
 
 import { AlarmAcknowledgedEvent } from '../../domain/events/alarm-acknowledged.event';
 import { UpsertMaterializedAlarmRepository } from '../ports/upset-materalized-alarm.repository';
+import {
+  DomainEventHandler,
+  IDomainEventHandler,
+  SerializedEventPayload,
+} from '@nestjslatam/ddd-lib';
 
-@EventsHandler(AlarmAcknowledgedEvent)
+@DomainEventHandler(AlarmAcknowledgedEvent)
 export class AlarmAcknowledgedEventHandler
-  implements IEventHandler<SerializedEventPayload<AlarmAcknowledgedEvent>>
+  implements
+    IDomainEventHandler<SerializedEventPayload<AlarmAcknowledgedEvent>>
 {
   private readonly logger = new Logger(AlarmAcknowledgedEventHandler.name);
 

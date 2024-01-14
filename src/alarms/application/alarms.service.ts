@@ -22,7 +22,6 @@ export class AlarmsService {
   }
 
   acknowledge(id: string) {
-    // 👈
     return this.commandBus.execute(new AcknowledgeAlarmCommand(id));
   }
 }

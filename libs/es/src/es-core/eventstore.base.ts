@@ -1,4 +1,4 @@
-import { ISerializableEvent } from '../es-serializers';
+import { ISerializableEvent } from '@nestjslatam/ddd-lib';
 
 export abstract class AbstractEventStore {
   abstract persist(

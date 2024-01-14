@@ -2,10 +2,8 @@ import { Injectable } from '@nestjs/common';
 
 import { Alarm } from '../alarm';
 import { AlarmItem } from '../alarm-item';
-import { AlarmCreatedEvent } from '../events/alarm-created.event';
-import { Name } from '../value-objects/name';
-import { AlarmSeverity } from '../value-objects/alarm-severity';
-import { Type } from '../value-objects/type';
+import { AlarmCreatedEvent } from '../events';
+import { Name, AlarmSeverity, Type } from '../value-objects';
 
 @Injectable()
 export class AlarmFactory {

@@ -9,18 +9,14 @@ import {
   MongoEventStore,
 } from './es-store';
 import { AbstractEventStore, EsOptions } from './es-core';
-import { EventSerializer } from './es-serializers';
 import { EventStorePublisher } from './es-eventstore.publisher';
-import { EventDeserializer } from './es-deserializers';
 
 @Module({
   imports: [ConfigModule.forRoot(), DddModule],
   providers: [
-    EventSerializer,
     EventStorePublisher,
     MongoEventStore,
     EventsBridge,
-    EventDeserializer,
     {
       provide: AbstractEventStore,
       useExisting: MongoEventStore,

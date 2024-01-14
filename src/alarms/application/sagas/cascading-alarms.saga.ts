@@ -17,7 +17,7 @@ export class CascadingAlarmsSaga {
       // Instead of grouping events by alarm name, we could group them by facility ID
       groupBy((event) => {
         const alarm = event.alarm as Alarm;
-        return alarm.getPropsCopy().name.unpack();
+        return alarm.props.name.unpack();
       }),
       mergeMap((groupedEvents$) =>
         // Buffer events for 5 seconds or until 3 events are received
@@ -32,7 +32,7 @@ export class CascadingAlarmsSaga {
           facilityId,
           events.map((event) => {
             const alarm = event.alarm as Alarm;
-            return alarm.getId();
+            return alarm.id;
           }),
         );
       }),

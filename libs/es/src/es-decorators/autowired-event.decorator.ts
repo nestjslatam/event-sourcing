@@ -1,5 +1,5 @@
-import { EventClsRegistry } from '../es-helpers';
+import { DomainEventClsRegistry } from '@nestjslatam/ddd-lib';
 
-export const AutowiredEvent: ClassDecorator = (target: any) => {
-  EventClsRegistry.add(target);
+export const EsAutowiredEvent: ClassDecorator = (target: any) => {
+  DomainEventClsRegistry.add(target);
 };

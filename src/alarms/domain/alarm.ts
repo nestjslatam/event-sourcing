@@ -1,18 +1,16 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {
-  EsDomainAggregateRoot,
+  TrackingProps,
+  DomainIdAsString,
+  DomainAggregateRoot,
   SerializedEventPayload,
-} from '@nestjslatam/es-lib';
-import { TrackingProps, DomainIdAsString } from '@nestjslatam/ddd-lib';
+} from '@nestjslatam/ddd-lib';
 import { v4 as uuid } from 'uuid';
 
 import { AlarmItem } from './alarm-item';
 import { AlarmAcknowledgedEvent } from './events/alarm-acknowledged.event';
 import { AlarmCreatedEvent } from './events/alarm-created.event';
-import { AlarmSeverity } from './value-objects/alarm-severity';
-import { Name } from './value-objects/name';
-import { Id } from './value-objects/id';
-import { Type } from './value-objects/type';
+import { AlarmSeverity, Name, Id, Type } from './value-objects';
 
 export interface IAlarmProps {
   name: Name;
@@ -22,7 +20,7 @@ export interface IAlarmProps {
   items: Array<AlarmItem>;
 }
 
-export interface IAlarmLoadProps {
+export interface IAlarmRaw {
   id: string;
   name: string;
   severity: string;
@@ -35,7 +33,7 @@ export interface IAlarmLoadProps {
   }>;
 }
 
-export class Alarm extends EsDomainAggregateRoot<IAlarmProps> {
+export class Alarm extends DomainAggregateRoot<IAlarmProps> {
   constructor(
     id: DomainIdAsString,
     props: IAlarmProps,
@@ -44,9 +42,19 @@ export class Alarm extends EsDomainAggregateRoot<IAlarmProps> {
     super(id, props, trackingProps);
   }
 
+  protected businessRules(props: IAlarmProps): void {
+    if (props.name.unpack().length < 3) {
+      throw new Error('Name must be at least 3 characters long');
+    }
+
+    if (props.severity === AlarmSeverity.CRITICAL) {
+      throw new Error('Critical alarms cannot be created');
+    }
+  }
+
   static create(name: Name, severity: AlarmSeverity) {
     const alarm = new Alarm(
-      new DomainIdAsString(uuid()),
+      DomainIdAsString.create(uuid()),
       {
         name,
         severity,
@@ -57,11 +65,15 @@ export class Alarm extends EsDomainAggregateRoot<IAlarmProps> {
       TrackingProps.setNew(),
     );
 
-    alarm.apply(new AlarmCreatedEvent(alarm));
+    alarm.apply(new AlarmCreatedEvent(alarm), {
+      fromHistory: false,
+      skipHandler: true,
+    });
+
     return alarm;
   }
 
-  static load(props: IAlarmLoadProps): Alarm {
+  static fromRaw(props: IAlarmRaw): Alarm {
     const { id, name, severity, triggeredAt, isAcknowledged, items } = props;
     const alarm = new Alarm(
       Id.load(id),
@@ -87,42 +99,42 @@ export class Alarm extends EsDomainAggregateRoot<IAlarmProps> {
     return alarm;
   }
 
-  protected businessRules(props: IAlarmProps): void {}
-
   acknowledge() {
-    this.apply(new AlarmAcknowledgedEvent(this.getId()));
+    this.apply(new AlarmAcknowledgedEvent(this.id), {
+      fromHistory: false,
+      skipHandler: true,
+    });
   }
 
   addAlarmItem(item: AlarmItem) {
     this.props.items.push(item);
   }
 
-  // [`on${AlarmCreatedEvent.name}`](
-  //   event: SerializedEventPayload<AlarmCreatedEvent>,
-  // ) {
-  //   const alarm = event.alarm as Alarm;
-  //   this.props.name = Name.create(alarm.getPropsCopy().name.unpack());
-  //   this.props.severity = alarm.getPropsCopy().severity;
-  //   this.props.triggeredAt = alarm.getPropsCopy().triggeredAt;
-  //   this.props.isAcknowledged = alarm.getPropsCopy().isAcknowledged;
-  //   this.props.items = alarm
-  //     .getPropsCopy()
-  //     .items.map(
-  //       (item) =>
-  //         new AlarmItem(
-  //           item.getPropsCopy().id,
-  //           item.getPropsCopy().name,
-  //           item.getPropsCopy().type,
-  //         ),
-  //     );
-  // }
+  [`on${AlarmCreatedEvent.name}`](
+    event: SerializedEventPayload<AlarmCreatedEvent>,
+  ) {
+    const alarmRaw = {
+      id: event.aggregateId,
+      ...event.data,
+    } as IAlarmRaw;
 
-  // [`on${AlarmAcknowledgedEvent.name}`](
-  //   event: SerializedEventPayload<AlarmAcknowledgedEvent>,
-  // ) {
-  //   if (this.getPropsCopy().isAcknowledged) {
-  //     throw new Error('Alarm has already been acknowledged');
-  //   }
-  //   this.props.isAcknowledged = true;
-  // }
+    const alarm = Alarm.fromRaw(alarmRaw);
+
+    this.props.name = alarm.props.name;
+    this.props.severity = alarm.props.severity;
+    this.props.triggeredAt = alarm.props.triggeredAt;
+    this.props.isAcknowledged = alarm.props.isAcknowledged;
+    this.props.items = alarm.props.items.map(
+      (item) => new AlarmItem(item.props.id, item.props.name, item.props.type),
+    );
+  }
+
+  [`on${AlarmAcknowledgedEvent.name}`](
+    event: SerializedEventPayload<AlarmAcknowledgedEvent>,
+  ) {
+    if (this.props.isAcknowledged) {
+      throw new Error('Alarm has already been acknowledged');
+    }
+    this.props.isAcknowledged = true;
+  }
 }

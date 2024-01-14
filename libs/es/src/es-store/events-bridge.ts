@@ -6,9 +6,12 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { ChangeStream, ChangeStreamInsertDocument } from 'mongodb';
 import { Model } from 'mongoose';
-import { DomainEvent, DomainEventBus } from '@nestjslatam/ddd-lib';
+import {
+  DomainEvent,
+  DomainEventBus,
+  DomainEventDeserializer,
+} from '@nestjslatam/ddd-lib';
 
-import { EventDeserializer } from '../es-deserializers';
 import { EVENT_STORE_CONNECTION } from './constants';
 import { EventDocument } from './schemas';
 
@@ -22,7 +25,7 @@ export class EventsBridge
     @InjectModel(Event.name, EVENT_STORE_CONNECTION)
     private readonly eventStore: Model<DomainEvent>,
     private readonly eventBus: DomainEventBus,
-    private readonly eventDeserializer: EventDeserializer,
+    private readonly eventDeserializer: DomainEventDeserializer,
   ) {}
 
   onApplicationBootstrap() {

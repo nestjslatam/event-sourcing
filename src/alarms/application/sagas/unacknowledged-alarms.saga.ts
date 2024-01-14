@@ -36,7 +36,7 @@ export class UnacknowledgedAlarmsSaga {
           alarmAcknowledgedEvents$.pipe(
             filter((alarmAcknowledgedEvent) => {
               const alarm = alarmCreatedEvent.alarm as Alarm;
-              return alarmAcknowledgedEvent.alarmId === alarm.getId();
+              return alarmAcknowledgedEvent.alarmId === alarm.id;
             }),
             first(),
             // If the alarm is acknowledged, we don't need to do anything
@@ -49,13 +49,11 @@ export class UnacknowledgedAlarmsSaga {
       map((alarmCreatedEvent) => {
         const alarm = alarmCreatedEvent.alarm as Alarm;
         this.logger.debug(
-          `⚠️⚠️⚠️ Alarm "${alarm
-            .getPropsCopy()
-            .name.unpack()}" not acknowledged in 15 seconds!`,
+          `⚠️⚠️⚠️ Alarm "${alarm.propsCopy.name.unpack()}" not acknowledged in 15 seconds!`,
         );
 
         const facilityId = '12345';
-        return new NotifyFacilitySupervisorCommand(facilityId, [alarm.getId()]);
+        return new NotifyFacilitySupervisorCommand(facilityId, [alarm.id]);
       }),
     );
   };

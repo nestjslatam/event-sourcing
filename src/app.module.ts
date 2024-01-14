@@ -26,7 +26,7 @@ import { AlarmsInfrastructureModule } from './alarms/infrastructure/alarms-infra
       synchronize: true,
     }),
     AlarmsModule.withInfrastucture(
-      AlarmsInfrastructureModule.use('orm'), // or AlarmsInfrastructureModule.use('in-memory')..
+      AlarmsInfrastructureModule.use('in-memory'), //  AlarmsInfrastructureModule.use('orm'),
     ),
   ],
   controllers: [],

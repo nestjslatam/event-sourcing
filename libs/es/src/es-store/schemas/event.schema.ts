@@ -1,7 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { DomainEvent } from '@nestjslatam/ddd-lib';
 import { HydratedDocument, SchemaTypes } from 'mongoose';
 
-export type EventDocument = HydratedDocument<Event>;
+export type EventDocument = HydratedDocument<DomainEvent>;
 
 @Schema({
   timestamps: {
@@ -11,7 +12,7 @@ export type EventDocument = HydratedDocument<Event>;
 })
 export class Event {
   @Prop()
-  streamId: string; // aggregateId
+  aagregateId: string;
 
   @Prop()
   type: string;
@@ -26,4 +27,4 @@ export class Event {
 }
 
 export const EventSchema = SchemaFactory.createForClass(Event);
-EventSchema.index({ streamId: 1, position: 1 }, { unique: true });
+EventSchema.index({ aagregateId: 1, position: 1 }, { unique: true });

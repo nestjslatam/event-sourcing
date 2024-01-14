@@ -3,9 +3,12 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
 import { EVENT_STORE_CONNECTION } from './constants';
-import { EventDeserializer } from '../es-deserializers';
-import { ISerializableEvent } from '../es-serializers';
+
 import { AbstractEventStore } from '../es-core';
+import {
+  ISerializableEvent,
+  DomainEventDeserializer,
+} from '@nestjslatam/ddd-lib';
 
 @Injectable()
 export class MongoEventStore implements AbstractEventStore {
@@ -14,7 +17,7 @@ export class MongoEventStore implements AbstractEventStore {
   constructor(
     @InjectModel(Event.name, EVENT_STORE_CONNECTION)
     private readonly eventStore: Model<Event>,
-    private readonly eventDeserializer: EventDeserializer,
+    private readonly eventDeserializer: DomainEventDeserializer,
   ) {}
 
   async persist(

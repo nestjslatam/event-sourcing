@@ -29,7 +29,7 @@ import {
   providers: [
     {
       provide: CreateAlarmRepository,
-      useClass: OrmCreateAlarmRepository, // 💡 This is where we bind the port to an adapter
+      useClass: OrmCreateAlarmRepository,
     },
     {
       provide: FindAlarmsRepository,

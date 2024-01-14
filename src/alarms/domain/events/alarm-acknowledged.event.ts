@@ -1,13 +1,13 @@
 import { DomainEvent } from '@nestjslatam/ddd-lib';
-import { AutowiredEvent } from '@nestjslatam/es-lib';
+import { EsAutowiredEvent } from '@nestjslatam/es-lib';
 
-@AutowiredEvent
+@EsAutowiredEvent
 export class AlarmAcknowledgedEvent extends DomainEvent {
   constructor(public readonly alarmId: string) {
     super({
       aggregateId: alarmId,
       eventName: AlarmAcknowledgedEvent.name,
-      data: JSON.stringify({ alarmId }),
+      data: { alarmId: alarmId },
     });
   }
 }

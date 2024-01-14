@@ -1,7 +1,9 @@
 import { Injectable, Type } from '@nestjs/common';
-import { DomainEventPublisher } from '@nestjslatam/ddd-lib';
+import {
+  DomainAggregateRoot,
+  DomainEventPublisher,
+} from '@nestjslatam/ddd-lib';
 
-import { EsDomainAggregateRoot } from './es-aggregate-root';
 import { AbstractEventStore } from './es-core';
 
 @Injectable()
@@ -11,7 +13,7 @@ export class AggregateRehydrator {
     private readonly eventPublisher: DomainEventPublisher,
   ) {}
 
-  async rehydrate<T extends EsDomainAggregateRoot<any>>(
+  async rehydrate<T extends DomainAggregateRoot<any>>(
     aggregateId: string,
     AggregateCls: Type<T>,
   ): Promise<T> {

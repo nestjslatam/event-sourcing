@@ -1,14 +1,17 @@
 import { Logger } from '@nestjs/common';
-import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
-import { SerializedEventPayload } from '@nestjslatam/es-lib';
 
-import { Alarm } from '../../domain/alarm';
+import { Alarm, IAlarmRaw } from '../../domain/alarm';
 import { AlarmCreatedEvent } from '../../domain/events/alarm-created.event';
 import { UpsertMaterializedAlarmRepository } from '../ports/upset-materalized-alarm.repository';
+import {
+  DomainEventHandler,
+  IDomainEventHandler,
+  SerializedEventPayload,
+} from '@nestjslatam/ddd-lib';
 
-@EventsHandler(AlarmCreatedEvent)
+@DomainEventHandler(AlarmCreatedEvent)
 export class AlarmCreatedEventHandler
-  implements IEventHandler<SerializedEventPayload<AlarmCreatedEvent>>
+  implements IDomainEventHandler<SerializedEventPayload<AlarmCreatedEvent>>
 {
   private readonly logger = new Logger(AlarmCreatedEventHandler.name);
 
@@ -23,18 +26,31 @@ export class AlarmCreatedEventHandler
     // with the creation of the alarm. Otherwise, we could end up with an alarm that is not reflected
     // in the read model (e.g. because the database operation fails).
     // For more information, check out "Transactional inbox/outbox pattern".
-    const alarm = event.alarm as Alarm;
+    const alarmRaw = {
+      id: event.aggregateId,
+      name: event.alarm.propsCopy.name,
+      severity: event.alarm.propsCopy.severity,
+      triggeredAt: new Date(event.alarm.propsCopy.triggeredAt),
+      isAcknowledged: false,
+      items: event.alarm.propsCopy.items.map((item) => ({
+        id: item.propsCopy.id,
+        name: item.propsCopy.name,
+        type: item.propsCopy.type,
+      })),
+    } as IAlarmRaw;
+
+    const alarm = Alarm.fromRaw(alarmRaw);
 
     await this.upsertMaterializedAlarmRepository.upsert({
-      id: alarm.getId(),
-      name: alarm.getPropsCopy().name.unpack(),
-      severity: alarm.getPropsCopy().severity.value,
-      triggeredAt: new Date(alarm.getPropsCopy().triggeredAt),
-      isAcknowledged: alarm.getPropsCopy().isAcknowledged,
-      items: alarm.getPropsCopy().items.map((item) => ({
-        id: item.getPropsCopy().id,
-        name: item.getPropsCopy().name,
-        type: item.getPropsCopy().type,
+      id: alarm.id,
+      name: alarm.propsCopy.name.unpack(),
+      severity: alarm.propsCopy.severity.value,
+      triggeredAt: new Date(alarm.propsCopy.triggeredAt),
+      isAcknowledged: alarm.propsCopy.isAcknowledged,
+      items: alarm.propsCopy.items.map((item) => ({
+        id: item.propsCopy.id,
+        name: item.propsCopy.name,
+        type: item.propsCopy.type,
       })),
     });
   }

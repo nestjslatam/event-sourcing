@@ -4,7 +4,7 @@ import { AlarmItemEntity } from '../entities/alarm-item.entity';
 
 export class AlarmMapper {
   static toDomain(alarmEntity: AlarmEntity): Alarm {
-    const alarmModel = Alarm.load({
+    const alarmModel = Alarm.fromRaw({
       id: alarmEntity.id,
       name: alarmEntity.name,
       severity: alarmEntity.severity,
@@ -17,16 +17,16 @@ export class AlarmMapper {
   }
   static toPersistence(alarm: Alarm) {
     const alarmEntity = new AlarmEntity();
-    alarmEntity.id = alarm.getId();
-    alarmEntity.name = alarm.getPropsCopy().name.unpack();
-    alarmEntity.severity = alarm.getPropsCopy().severity.value;
-    alarmEntity.triggeredAt = alarm.getPropsCopy().triggeredAt;
-    alarmEntity.isAcknowledged = alarm.getPropsCopy().isAcknowledged;
-    alarmEntity.items = alarm.getPropsCopy().items.map((item) => {
+    alarmEntity.id = alarm.id;
+    alarmEntity.name = alarm.props.name.unpack();
+    alarmEntity.severity = alarm.props.severity.value;
+    alarmEntity.triggeredAt = alarm.props.triggeredAt;
+    alarmEntity.isAcknowledged = alarm.props.isAcknowledged;
+    alarmEntity.items = alarm.props.items.map((item) => {
       const alarmItemEntity = new AlarmItemEntity();
-      alarmItemEntity.id = item.getPropsCopy().id;
-      alarmItemEntity.name = item.getPropsCopy().name;
-      alarmItemEntity.type = item.getPropsCopy().type;
+      alarmItemEntity.id = item.props.id;
+      alarmItemEntity.name = item.props.name;
+      alarmItemEntity.type = item.props.type;
       return alarmItemEntity;
     });
 

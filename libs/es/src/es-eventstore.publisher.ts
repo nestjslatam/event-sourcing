@@ -1,13 +1,13 @@
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import {
+  DomainAggregateRoot,
   DomainEventBus,
   IDomainEvent,
   IDomainEventPublisher,
+  DomainEventSerializer,
 } from '@nestjslatam/ddd-lib';
 
 import { MongoEventStore } from './es-store/mongo-event-store';
-import { EventSerializer } from './es-serializers';
-import { EsDomainAggregateRoot } from './es-aggregate-root';
 
 @Injectable()
 export class EventStorePublisher
@@ -16,7 +16,7 @@ export class EventStorePublisher
   constructor(
     private readonly eventStore: MongoEventStore,
     private readonly eventBus: DomainEventBus,
-    private readonly eventSerializer: EventSerializer,
+    private readonly eventSerializer: DomainEventSerializer,
   ) {}
 
   onApplicationBootstrap() {
@@ -25,7 +25,7 @@ export class EventStorePublisher
 
   publish<T extends IDomainEvent = IDomainEvent>(
     event: T,
-    dispatcher: EsDomainAggregateRoot<any>,
+    dispatcher: DomainAggregateRoot<any>,
   ) {
     const serializableEvent = this.eventSerializer.serialize(event, dispatcher);
     return this.eventStore.persist(serializableEvent);
@@ -33,7 +33,7 @@ export class EventStorePublisher
 
   publishAll<T extends IDomainEvent = IDomainEvent>(
     events: T[],
-    dispatcher: EsDomainAggregateRoot<any>,
+    dispatcher: DomainAggregateRoot<any>,
   ) {
     const serializableEvents = events
       .map((event) => this.eventSerializer.serialize(event, dispatcher))

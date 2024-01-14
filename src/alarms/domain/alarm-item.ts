@@ -1,7 +1,6 @@
 import { TrackingProps } from '@nestjslatam/ddd-lib';
-
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { DomainEntity, DomainIdAsString } from '@nestjslatam/ddd-lib';
+
 import { Id } from './value-objects/id';
 import { Name } from './value-objects/name';
 import { Type } from './value-objects/type';
@@ -29,6 +28,12 @@ export class AlarmItem extends DomainEntity<any> {
   }
 
   protected businessRules(props: any): void {
-    //
+    if (props.name.unpack().length < 3) {
+      throw new Error('Name must be at least 3 characters long');
+    }
+
+    if (props.type.value === 'critical') {
+      throw new Error('Critical alarms cannot be created');
+    }
   }
 }
