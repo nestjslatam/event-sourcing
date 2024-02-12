@@ -4,6 +4,7 @@ import {
   DomainIdAsString,
   DomainAggregateRoot,
   SerializedEventPayload,
+  BrokenRule,
 } from '@nestjslatam/ddd-lib';
 import { v4 as uuid } from 'uuid';
 
@@ -44,11 +45,15 @@ export class Alarm extends DomainAggregateRoot<IAlarmProps> {
 
   protected businessRules(props: IAlarmProps): void {
     if (props.name.unpack().length < 3) {
-      throw new Error('Name must be at least 3 characters long');
+      this.addBrokenRule(
+        new BrokenRule('name', 'Name must be at least 3 characters long'),
+      );
     }
 
     if (props.severity === AlarmSeverity.CRITICAL) {
-      throw new Error('Critical alarms cannot be created');
+      this.addBrokenRule(
+        new BrokenRule('severity', 'Critical alarms cannot be created'),
+      );
     }
   }
 
